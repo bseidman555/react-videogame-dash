@@ -18,17 +18,27 @@ export interface Game {
 }
 
 
+const playStationPlatformIds = [18, 16, 15, 27, 187]; // PS4, PS3, PS2, PS Vita, PS5
 
-const useGames = (gameQuery: GameQuery) =>
-    useData<Game>('/games',
+const useGames = (gameQuery: GameQuery) => {
+    const isPlayStation =
+        gameQuery.platform?.name.toLowerCase().includes("playstation");
+
+    const platformParam = isPlayStation
+        ? playStationPlatformIds.join(",")
+        : gameQuery.platform?.id;
+
+    return useData<Game>(
+        "/games",
         {
             params: {
                 genres: gameQuery.genre?.id,
-                platforms: gameQuery.platform?.id,
+                platforms: platformParam,
                 ordering: gameQuery.sortOrder,
-                search: gameQuery.searchText
-            }
+                search: gameQuery.searchText,
+            },
         },
-        [
-            gameQuery])
+        [gameQuery]
+    );
+};
 export default useGames;
